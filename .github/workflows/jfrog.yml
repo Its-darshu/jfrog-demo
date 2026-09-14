@@ -1,0 +1,34 @@
+name: Build and Push to JFrog
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to JFrog
+        uses: docker/login-action@v3
+        with:
+          registry: trial08wn7n.jfrog.io
+          username: ${{ secrets.JFROG_USERNAME }}
+          password: ${{ secrets.JFROG_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }} .
+
+      - name: Push Docker image
+        run: |
+          docker push trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }}
+
+
+
+
+
