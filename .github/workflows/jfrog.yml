@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  JFROG_CLI_BUILD_NAME: jfrog-demo
+  JFROG_CLI_BUILD_NUMBER: ${{ github.run_number }}
+
 jobs:
   build-and-promote:
     runs-on: ubuntu-latest
@@ -13,31 +17,48 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Login to JFrog
+      - name: Login to Docker / JFrog
         uses: docker/login-action@v3
         with:
           registry: trial08wn7n.jfrog.io
           username: ${{ secrets.JFROG_USERNAME }}
           password: ${{ secrets.JFROG_TOKEN }}
 
-      - name: Build Docker image
-        run: |
-          docker build \
-            -t trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }} .
-
-      - name: Push Docker image
-        run: |
-          docker push \
-            trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }}
-
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
         env:
           JF_URL: https://trial08wn7n.jfrog.io
-          JF_USERNAME: ${{ secrets.JFROG_USERNAME }}
           JF_ACCESS_TOKEN: ${{ secrets.JFROG_TOKEN }}
 
-      - name: Test JFrog CLI
+      - name: Build Docker image
         run: |
-          jf rt ping \
-          --server-id=setup-jfrog-cli-server
+          docker build \
+            --provenance=false \
+            --sbom=false \
+            -t trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }} .
+
+      - name: Push image and collect Build Info
+        run: |
+          jf docker push \
+            trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }} \
+            --build-name=$JFROG_CLI_BUILD_NAME \
+            --build-number=$JFROG_CLI_BUILD_NUMBER
+
+      - name: Publish Build Info
+        run: |
+          jf rt build-publish \
+            $JFROG_CLI_BUILD_NAME \
+            $JFROG_CLI_BUILD_NUMBER \
+            --collect-env \
+            --collect-git-info
+
+      - name: Promote to Production
+        run: |
+          jf rt bpr \
+            $JFROG_CLI_BUILD_NAME \
+            $JFROG_CLI_BUILD_NUMBER \
+            docker-prod \
+            --source-repo=docker-trial \
+            --copy \
+            --status=Released \
+            --comment="Automatically promoted by GitHub Actions"
