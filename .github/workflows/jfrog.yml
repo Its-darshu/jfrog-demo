@@ -1,4 +1,4 @@
-name: Build and Push to JFrog
+name: Build, Push & Promote to JFrog
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-and-promote:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,13 +22,24 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }} .
+          docker build \
+            -t trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }} .
 
       - name: Push Docker image
         run: |
-          docker push trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }}
+          docker push \
+            trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }}
 
+      - name: Configure JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: https://trial08wn7n.jfrog.io
+          JF_ACCESS_TOKEN: ${{ secrets.JFROG_TOKEN }}
 
-
-
-
+      - name: Promote Build
+        run: |
+          jf rt bpr jfrog-demo ${{ github.run_number }} docker-prod \
+            --source-repo=docker-trial \
+            --copy \
+            --status=Released \
+            --comment="Automatically promoted by GitHub Actions"
