@@ -33,14 +33,8 @@ jobs:
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
 
-      - name: Configure JFrog authentication
-        run: |
-          printf '%s' "${{ secrets.JFROG_TOKEN }}" | jf config add jfrog \
-            --url=https://trial08wn7n.jfrog.io \
-            --access-token-stdin \
-            --interactive=false \
-            --overwrite
-
       - name: Test JFrog connection
-        run: |
-          jf rt ping --server-id=jfrog
+  run: |
+    jf rt ping \
+      --url=https://trial08wn7n.jfrog.io \
+      --access-token="${{ secrets.JFROG_TOKEN }}"
