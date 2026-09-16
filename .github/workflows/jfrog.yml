@@ -36,5 +36,5 @@ jobs:
       - name: Test JFrog connection
         run: |
           jf rt ping \
-            --url=https://trial08wn7n.jfrog.io \
+            --url=https://trial08wn7n.jfrog.io/artifactory \
             --access-token="${{ secrets.JFROG_TOKEN }}"
