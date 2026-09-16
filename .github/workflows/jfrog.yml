@@ -34,7 +34,7 @@ jobs:
         uses: jfrog/setup-jfrog-cli@v4
 
       - name: Test JFrog connection
-  run: |
-    jf rt ping \
-      --url=https://trial08wn7n.jfrog.io \
-      --access-token="${{ secrets.JFROG_TOKEN }}"
+        run: |
+          jf rt ping \
+            --url=https://trial08wn7n.jfrog.io \
+            --access-token="${{ secrets.JFROG_TOKEN }}"
