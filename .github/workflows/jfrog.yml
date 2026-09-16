@@ -30,27 +30,17 @@ jobs:
           docker push \
             trial08wn7n.jfrog.io/docker-trial/jfrog-demo:${{ github.sha }}
 
-      - name: Configure JFrog CLI
-        uses: jfrog/setup-jfrog-cli@v4
-        env:
-          JF_URL: https://trial08wn7n.jfrog.io
-          JF_ACCESS_TOKEN: ${{ secrets.JFROG_TOKEN }}
-      
-      - name: Configure JFrog server
-        run: |
-          jf config add jfrog \
-            --url=https://trial08wn7n.jfrog.io \
-            --access-token="${{ secrets.JFROG_TOKEN }}" \
-            --interactive=false \
-            --overwrite
-      
-      - name: Test JFrog connection
-        run: |
-          jf rt ping --server-id=jfrog
-      - name: Promote Build
-        run: |
-          jf rt bpr jfrog-demo ${{ github.run_number }} docker-prod \
-            --source-repo=docker-trial \
-            --copy \
-            --status=Released \
-            --comment="Automatically promoted by GitHub Actions"
+- name: Setup JFrog CLI
+  uses: jfrog/setup-jfrog-cli@v4
+
+- name: Configure JFrog authentication
+  run: |
+    printf '%s' "${{ secrets.JFROG_TOKEN }}" | jf config add jfrog \
+      --url=https://trial08wn7n.jfrog.io \
+      --access-token-stdin \
+      --interactive=false \
+      --overwrite
+
+- name: Test JFrog connection
+  run: |
+    jf rt ping --server-id=jfrog
