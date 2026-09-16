@@ -35,6 +35,10 @@ jobs:
         env:
           JF_URL: https://trial08wn7n.jfrog.io
           JF_ACCESS_TOKEN: ${{ secrets.JFROG_TOKEN }}
+      
+      - name: Test JFrog connection
+        run: |
+          jf rt ping 
 
       - name: Promote Build
         run: |
