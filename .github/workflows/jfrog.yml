@@ -32,9 +32,11 @@ jobs:
 
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: https://trial08wn7n.jfrog.io
+          JF_ACCESS_TOKEN: ${{ secrets.JFROG_TOKEN }}
 
-      - name: Test JFrog connection
+      - name: Test JFrog CLI
         run: |
           jf rt ping \
-            --url=https://trial08wn7n.jfrog.io/artifactory \
-            --access-token="${{ secrets.JFROG_TOKEN }}"
+          --server-id=setup-jfrog-cli-server
