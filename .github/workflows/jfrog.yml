@@ -52,14 +52,14 @@ jobs:
             --collect-env \
             --collect-git-info
 
-      -name: Xray Security Gate
+      - name: Xray Security Gate
         run: |
-          jf build-scan \ 
+          jf build-scan \
             $JFROG_CLI_BUILD_NAME \
-            $JFROG_CLI_BUILD_NUMBER \
-            
+            $JFROG_CLI_BUILD_NUMBER
 
       - name: Promote to Production
+        if: success()
         run: |
           jf rt bpr \
             $JFROG_CLI_BUILD_NAME \
