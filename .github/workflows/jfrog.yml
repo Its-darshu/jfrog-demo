@@ -36,10 +36,17 @@ jobs:
           JF_URL: https://trial08wn7n.jfrog.io
           JF_ACCESS_TOKEN: ${{ secrets.JFROG_TOKEN }}
       
+      - name: Configure JFrog server
+        run: |
+          jf config add jfrog \
+            --url=https://trial08wn7n.jfrog.io \
+            --access-token="${{ secrets.JFROG_TOKEN }}" \
+            --interactive=false \
+            --overwrite
+      
       - name: Test JFrog connection
         run: |
-          jf rt ping 
-
+          jf rt ping --server-id=jfrog
       - name: Promote Build
         run: |
           jf rt bpr jfrog-demo ${{ github.run_number }} docker-prod \
