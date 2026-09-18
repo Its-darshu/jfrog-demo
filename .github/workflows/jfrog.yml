@@ -45,13 +45,13 @@ jobs:
             --build-number=$JFROG_CLI_BUILD_NUMBER
 
       - name: Publish Build Info
-  run: |
-    jf rt build-publish \
-      $JFROG_CLI_BUILD_NAME \
-      $JFROG_CLI_BUILD_NUMBER \
-      --collect-env \
-      --collect-git-info \
-      --build-url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: |
+          jf rt build-publish \
+            $JFROG_CLI_BUILD_NAME \
+            $JFROG_CLI_BUILD_NUMBER \
+            --collect-env \
+            --collect-git-info \
+            --build-url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Xray Security Gate
         run: |
